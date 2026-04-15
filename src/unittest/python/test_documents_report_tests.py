@@ -7,11 +7,11 @@ from unittest import TestCase
 from os import remove
 from datetime import datetime,timezone
 from freezegun import freeze_time
-from uc3m_consulting import (TEST_NUMDOCS_STORE_FILE,
-                        EnterpriseManager,
-                        EnterpriseManagementException)
+from uc3m_consulting.enterprise_manager import EnterpriseManager
+from uc3m_consulting.enterprise_management_exception import EnterpriseManagementException
+from uc3m_consulting.enterprise_manager_config import TEST_NUMDOCS_STORE_FILE
 
-class TestDocumentsReporTest(TestCase):
+class TestDocumentsReportTest(TestCase):
     """Class for testing deliver_product"""
     def setUp(self):
         """ inicializo el entorno de prueba """
