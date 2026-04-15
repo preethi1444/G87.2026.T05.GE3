@@ -11,9 +11,23 @@ from uc3m_consulting.enterprise_manager_config import (PROJECTS_STORE_FILE,
                                                        TEST_NUMDOCS_STORE_FILE)
 from uc3m_consulting.project_document import ProjectDocument
 
+
 class EnterpriseManager:
     """Class for providing the methods for managing the orders"""
+
+    __instance = None
+
+    def __new__(cls):
+        """Implementation of the Singleton pattern (Step 3.1)"""
+        if EnterpriseManager.__instance is None:
+            EnterpriseManager.__instance = super(EnterpriseManager, cls).__new__(cls)
+        return EnterpriseManager.__instance
+
     def __init__(self):
+        """
+        Constructor remains, but since __new__ handles the instance,
+        we can use this to initialize values only once if needed.
+        """
         pass
 
     @staticmethod
