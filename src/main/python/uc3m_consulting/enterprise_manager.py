@@ -175,6 +175,24 @@ class EnterpriseManager:
 
         return new_project.project_id
 
+    @staticmethod
+    def _count_valid_docs_for_date(documents_data, date_str):
+        """Internal helper to count documents with valid signatures (2.1a)"""
+        count = 0
+        for document in documents_data:
+            registration_timestamp = document["register_date"]
+            formatted_doc_date = datetime.fromtimestamp(registration_timestamp).strftime("%d/%m/%Y")
+
+            if formatted_doc_date == date_str:
+                document_datetime = datetime.fromtimestamp(registration_timestamp, tz=timezone.utc)
+                with freeze_time(document_datetime):
+                    # Integrity check
+                    project_doc = ProjectDocument(document["project_id"], document["file_name"])
+                    if project_doc.document_signature == document["document_signature"]:
+                        count += 1
+                    else:
+                        raise EnterpriseManagementException("Inconsistent document signature")
+        return count
 
     def find_docs(self, date_str):
         """
@@ -196,27 +214,7 @@ class EnterpriseManager:
         self.validate_date_format(date_str)
         # open documents
         documents_data = EnterpriseManager._load_json_data(TEST_DOCUMENTS_STORE_FILE)
-
-        valid_document_count = 0
-
-        # loop to find
-        for document in documents_data:
-            registration_timestamp = document["register_date"]
-
-            # string conversion for easy match
-            formatted_doc_date = datetime.fromtimestamp(registration_timestamp).strftime("%d/%m/%Y")
-
-            if formatted_doc_date == date_str:
-                document_datetime = datetime.fromtimestamp(registration_timestamp, tz=timezone.utc)
-                with freeze_time(document_datetime):
-                    # check the project id (thanks to freezetime)
-                    # if project_id are different then the data has been
-                    #manipulated
-                    project_doc = ProjectDocument(document["project_id"], document["file_name"])
-                    if project_doc.document_signature == document["document_signature"]:
-                        valid_document_count += 1
-                    else:
-                        raise EnterpriseManagementException("Inconsistent document signature")
+        valid_document_count = self._count_valid_docs_for_date(documents_data, date_str)
 
         if valid_document_count == 0:
             raise EnterpriseManagementException("No documents found")
