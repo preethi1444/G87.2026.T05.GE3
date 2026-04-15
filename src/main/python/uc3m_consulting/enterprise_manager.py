@@ -102,6 +102,15 @@ class EnterpriseManager:
         except json.JSONDecodeError as ex:
             raise EnterpriseManagementException("JSON Decode Error - Wrong JSON Format") from ex
 
+    @staticmethod
+    def _save_json_data(file_path, data):
+        """Helper to unify JSON saving logic and error handling (2.1b)"""
+        try:
+            with open(file_path, "w", encoding="utf-8", newline="") as file:
+                json.dump(data, file, indent=2)
+        except FileNotFoundError as ex:
+            raise EnterpriseManagementException("Wrong file  or file path") from ex
+
     def register_project(self,
                          company_cif: str,
                          project_acronym: str,
@@ -156,14 +165,8 @@ class EnterpriseManager:
                 raise EnterpriseManagementException("Duplicated project in projects list")
 
         projects_list.append(new_project.to_json())
+        EnterpriseManager._save_json_data(PROJECTS_STORE_FILE, projects_list)
 
-        try:
-            with open(PROJECTS_STORE_FILE, "w", encoding="utf-8", newline="") as file:
-                json.dump(projects_list, file, indent=2)
-        except FileNotFoundError as ex:
-            raise EnterpriseManagementException("Wrong file  or file path") from ex
-        except json.JSONDecodeError as ex:
-            raise EnterpriseManagementException("JSON Decode Error - Wrong JSON Format") from ex
         return new_project.project_id
 
 
@@ -221,9 +224,5 @@ class EnterpriseManager:
         reports_history = EnterpriseManager._load_json_data(TEST_NUMDOCS_STORE_FILE)
         reports_history.append(report_entry)
 
-        try:
-            with open(TEST_NUMDOCS_STORE_FILE, "w", encoding="utf-8", newline="") as file:
-                json.dump(reports_history, file, indent=2)
-        except FileNotFoundError as ex:
-            raise EnterpriseManagementException("Wrong file  or file path") from ex
+        EnterpriseManager._save_json_data(TEST_NUMDOCS_STORE_FILE, reports_history)
         return valid_document_count
