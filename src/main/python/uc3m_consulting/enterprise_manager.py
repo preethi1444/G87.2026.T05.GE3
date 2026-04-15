@@ -65,21 +65,23 @@ class EnterpriseManager:
             raise EnterpriseManagementException("CIF type not supported")
         return True
 
-    def validate_starting_date(self, date_string):
-        """validates the  date format  using regex"""
-        # mr: date_regex_pattern
-        date_regex_pattern = re.compile(r"^(([0-2]\d|3[0-1])\/(0\d|1[0-2])\/\d\d\d\d)$")
-
-        # res: regex_match
-        regex_match = date_regex_pattern.fullmatch(date_string)
-        if not regex_match:
+    @staticmethod
+    def validate_date_format(date_string: str):
+        """Unified validation for DD/MM/YYYY date format to remove duplication"""
+        date_pattern = re.compile(r"^(([0-2]\d|3[0-1])\/(0\d|1[0-2])\/\d\d\d\d)$")
+        date_match = date_pattern.fullmatch(date_string)
+        if not date_match:
             raise EnterpriseManagementException("Invalid date format")
 
         try:
-            #my_date: parsed_date
             parsed_date = datetime.strptime(date_string, "%d/%m/%Y").date()
         except ValueError as ex:
             raise EnterpriseManagementException("Invalid date format") from ex
+        return parsed_date
+
+
+    def validate_starting_date(self, date_string):
+        parsed_date = self.validate_date_format(date_string)
 
         if parsed_date < datetime.now(timezone.utc).date():
             raise EnterpriseManagementException("Project's date must be today or later.")
@@ -88,6 +90,7 @@ class EnterpriseManager:
             raise EnterpriseManagementException("Invalid date format")
         return date_string
     #pylint: disable=too-many-arguments, too-many-positional-arguments
+
     def register_project(self,
                          company_cif: str,
                          project_acronym: str,
