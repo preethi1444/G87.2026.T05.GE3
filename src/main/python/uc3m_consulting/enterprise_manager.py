@@ -91,6 +91,17 @@ class EnterpriseManager:
         return date_string
     #pylint: disable=too-many-arguments, too-many-positional-arguments
 
+    @staticmethod
+    def _load_json_data(file_path):
+        """Helper to unify JSON loading logic and error handling (2.1b)"""
+        try:
+            with open(file_path, "r", encoding="utf-8", newline="") as file:
+                return json.load(file)
+        except FileNotFoundError:
+            return []
+        except json.JSONDecodeError as ex:
+            raise EnterpriseManagementException("JSON Decode Error - Wrong JSON Format") from ex
+
     def register_project(self,
                          company_cif: str,
                          project_acronym: str,
@@ -138,13 +149,7 @@ class EnterpriseManager:
                                         starting_date=date,
                                         project_budget=budget)
 
-        try:
-            with open(PROJECTS_STORE_FILE, "r", encoding="utf-8", newline="") as file:
-                projects_list = json.load(file)
-        except FileNotFoundError:
-            projects_list = []
-        except json.JSONDecodeError as ex:
-            raise EnterpriseManagementException("JSON Decode Error - Wrong JSON Format") from ex
+        projects_list = EnterpriseManager._load_json_data(PROJECTS_STORE_FILE)
 
         for existing_project in projects_list:
             if existing_project == new_project.to_json():
@@ -181,12 +186,7 @@ class EnterpriseManager:
         """
         self.validate_date_format(date_str)
         # open documents
-        try:
-            with open(TEST_DOCUMENTS_STORE_FILE, "r", encoding="utf-8", newline="") as file:
-                documents_data = json.load(file)
-        except FileNotFoundError as ex:
-            raise EnterpriseManagementException("Wrong file  or file path") from ex
-
+        documents_data = EnterpriseManager._load_json_data(TEST_DOCUMENTS_STORE_FILE)
 
         valid_document_count = 0
 
@@ -218,13 +218,7 @@ class EnterpriseManager:
              "Numfiles": valid_document_count
              }
 
-        try:
-            with open(TEST_NUMDOCS_STORE_FILE, "r", encoding="utf-8", newline="") as file:
-                reports_history = json.load(file)
-        except FileNotFoundError:
-            reports_history = []
-        except json.JSONDecodeError as ex:
-            raise EnterpriseManagementException("JSON Decode Error - Wrong JSON Format") from ex
+        reports_history = EnterpriseManager._load_json_data(TEST_NUMDOCS_STORE_FILE)
         reports_history.append(report_entry)
 
         try:
