@@ -26,31 +26,11 @@ class EnterpriseManager:
         if not cif_regex_pattern.fullmatch(cif_code):
             raise EnterpriseManagementException("Invalid CIF format")
 
-        # Extract components of the CIF
         cif_letter = cif_code[0]
-        cif_numbers = cif_code[1:8]
         control_digit = cif_code[8]
 
-        even_sum = 0 #even_sum (positions 0, 2, 4, 6 in the 1-indexed algorithm)
-        odd_sum = 0 #odd_sum (positions 1, 3, 5)
-
-        for i in range(len(cif_numbers)):
-            if i % 2 == 0:
-                # x -> digit_multiplied
-                digit_multiplied = int(cif_numbers[i]) * 2
-                if digit_multiplied > 9:
-                    even_sum = even_sum + (digit_multiplied // 10) + (digit_multiplied % 10)
-                else:
-                    even_sum = even_sum + digit_multiplied
-            else:
-                odd_sum = odd_sum + int(cif_numbers[i])
-
-        total_sum = even_sum + odd_sum
-        last_digit_of_sum = total_sum % 10
-        control_result = 10 - last_digit_of_sum
-
-        if control_result == 10:
-            control_result = 0
+        # Call the extracted calculation logic
+        control_result = EnterpriseManager._calculate_cif_control(cif_code[1:8])
 
         # dic -> control_letter_mapping
         control_letter_mapping = "JABCDEFGHI"
@@ -64,6 +44,24 @@ class EnterpriseManager:
         else:
             raise EnterpriseManagementException("CIF type not supported")
         return True
+
+    @staticmethod
+    def _calculate_cif_control(cif_numbers):
+        """Internal helper to calculate the CIF control digit/letter (2.1a)"""
+        even_sum = 0
+        odd_sum = 0
+
+        for i, digit_str in enumerate(cif_numbers):
+            digit = int(digit_str)
+            if i % 2 == 0:
+                digit_multiplied = digit * 2
+                even_sum += (digit_multiplied // 10) + (digit_multiplied % 10)
+            else:
+                odd_sum += digit
+
+        total_sum = even_sum + odd_sum
+        control_result = (10 - (total_sum % 10)) % 10
+        return control_result
 
     @staticmethod
     def validate_date_format(date_string: str):
