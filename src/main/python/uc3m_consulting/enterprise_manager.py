@@ -109,6 +109,31 @@ class EnterpriseManager:
         except FileNotFoundError as ex:
             raise EnterpriseManagementException("Wrong file  or file path") from ex
 
+    @staticmethod
+    def _validate_budget(budget):
+        """Internal helper to validate budget format and range (2.1a)"""
+        try:
+            budget_amount = float(budget)
+        except ValueError as exc:
+            raise EnterpriseManagementException("Invalid budget amount") from exc
+
+        budget_string = str(budget_amount)
+        if '.' in budget_string:
+            decimal_places = len(budget_string.split('.')[1])
+            if decimal_places > 2:
+                raise EnterpriseManagementException("Invalid budget amount")
+
+        if budget_amount < 50000 or budget_amount > 1000000:
+            raise EnterpriseManagementException("Invalid budget amount")
+        return budget_amount
+
+    @staticmethod
+    def _check_if_project_exists(projects_list, new_project):
+        """Internal helper to check for duplicate projects (2.1a)"""
+        for existing_project in projects_list:
+            if existing_project == new_project.to_json():
+                raise EnterpriseManagementException("Duplicated project in projects list")
+
     def register_project(self,
                          company_cif: str,
                          project_acronym: str,
@@ -133,21 +158,7 @@ class EnterpriseManager:
             raise EnterpriseManagementException("Invalid department")
 
         self.validate_starting_date(date)
-
-        try:
-            budget_amount  = float(budget)
-        except ValueError as exc:
-            raise EnterpriseManagementException("Invalid budget amount") from exc
-
-        budget_string = str(budget_amount)
-        if '.' in budget_string:
-            decimal_places = len(budget_string.split('.')[1])
-            if decimal_places > 2:
-                raise EnterpriseManagementException("Invalid budget amount")
-
-        if budget_amount < 50000 or budget_amount > 1000000:
-            raise EnterpriseManagementException("Invalid budget amount")
-
+        self._validate_budget(budget)
 
         new_project = EnterpriseProject(company_cif=company_cif,
                                         project_acronym=project_acronym,
@@ -157,10 +168,7 @@ class EnterpriseManager:
                                         project_budget=budget)
 
         projects_list = EnterpriseManager._load_json_data(PROJECTS_STORE_FILE)
-
-        for existing_project in projects_list:
-            if existing_project == new_project.to_json():
-                raise EnterpriseManagementException("Duplicated project in projects list")
+        EnterpriseManager._check_if_project_exists(projects_list, new_project)
 
         projects_list.append(new_project.to_json())
         EnterpriseManager._save_json_data(PROJECTS_STORE_FILE, projects_list)
