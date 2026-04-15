@@ -134,6 +134,21 @@ class EnterpriseManager:
             if existing_project == new_project.to_json():
                 raise EnterpriseManagementException("Duplicated project in projects list")
 
+    @staticmethod
+    def _validate_project_params(acronym, description, department):
+        """Internal helper to validate basic project string parameters (2.1a)"""
+        acronym_pattern = re.compile(r"^[a-zA-Z0-9]{5,10}")
+        if not acronym_pattern.fullmatch(acronym):
+            raise EnterpriseManagementException("Invalid acronym")
+
+        description_pattern = re.compile(r"^.{10,30}$")
+        if not description_pattern.fullmatch(description):
+            raise EnterpriseManagementException("Invalid description format")
+
+        department_pattern = re.compile(r"(HR|FINANCE|LEGAL|LOGISTICS)")
+        if not department_pattern.fullmatch(department):
+            raise EnterpriseManagementException("Invalid department")
+
     def register_project(self,
                          company_cif: str,
                          project_acronym: str,
@@ -143,20 +158,7 @@ class EnterpriseManager:
                          budget: str):
         """registers a new project"""
         self.validate_cif(company_cif)
-        acronym_pattern = re.compile(r"^[a-zA-Z0-9]{5,10}")
-        acronym_match = acronym_pattern.fullmatch(project_acronym)
-        if not acronym_match:
-            raise EnterpriseManagementException("Invalid acronym")
-        description_pattern = re.compile(r"^.{10,30}$")
-        description_match = description_pattern.fullmatch(project_description)
-        if not description_match:
-            raise EnterpriseManagementException("Invalid description format")
-
-        department_pattern = re.compile(r"(HR|FINANCE|LEGAL|LOGISTICS)")
-        department_match = department_pattern.fullmatch(department)
-        if not department_match:
-            raise EnterpriseManagementException("Invalid department")
-
+        self._validate_project_params(project_acronym, project_description, department)
         self.validate_starting_date(date)
         self._validate_budget(budget)
 
