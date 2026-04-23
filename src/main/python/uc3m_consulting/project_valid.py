@@ -7,7 +7,9 @@ from datetime import datetime, timezone
 from uc3m_consulting.enterprise_management_exception import EnterpriseManagementException
 
 class project_valid:
-
+    """
+    Helper class for project validation from Entreprise Manager
+    """
     @staticmethod
     def validate_cif(cif_code: str):
         """validates a cif number """

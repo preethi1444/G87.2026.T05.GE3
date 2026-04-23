@@ -3,17 +3,17 @@ Refactored to break up validation and document info into two
 helper classes to reduce divergent changes and large classes.
 """
 
-import re
+#import re
 import json
 
 from datetime import datetime, timezone
-from freezegun import freeze_time
+#from freezegun import freeze_time
 from uc3m_consulting.enterprise_project import EnterpriseProject
 from uc3m_consulting.enterprise_management_exception import EnterpriseManagementException
 from uc3m_consulting.enterprise_manager_config import (PROJECTS_STORE_FILE,
                                                        TEST_DOCUMENTS_STORE_FILE,
                                                        TEST_NUMDOCS_STORE_FILE)
-from uc3m_consulting.project_document import ProjectDocument
+#from uc3m_consulting.project_document import ProjectDocument
 from uc3m_consulting.project_valid import project_valid
 from uc3m_consulting.document_info import document_info
 
@@ -29,12 +29,13 @@ class EnterpriseManager:
             EnterpriseManager.__instance = super(EnterpriseManager, cls).__new__(cls)
         return EnterpriseManager.__instance
 
-    def __init__(self):
-        """
-        Constructor remains, but since __new__ handles the instance,
-        we can use this to initialize values only once if needed.
-        """
-        pass
+    #removed to increase pylint score
+    # def __init__(self):
+    #     """
+    #     Constructor remains, but since __new__ handles the instance,
+    #     we can use this to initialize values only once if needed.
+    #     """
+    #     pass
 
     @staticmethod
     def _load_json_data(file_path):

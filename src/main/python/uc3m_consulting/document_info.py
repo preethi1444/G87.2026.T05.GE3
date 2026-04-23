@@ -10,6 +10,9 @@ from uc3m_consulting.enterprise_management_exception import EnterpriseManagement
 
 
 class document_info:
+    """
+    Helper class for counting valid docs from Entreprise Manager
+    """
     @staticmethod
     def count_valid_docs_for_date(documents_data, date_str):
         """Internal helper to count documents with valid signatures (2.1a)"""
