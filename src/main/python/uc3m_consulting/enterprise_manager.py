@@ -1,4 +1,8 @@
-"""Module """
+"""
+Refactored to break up validation and document info into two
+helper classes to reduce divergent changes and large classes.
+"""
+
 import re
 import json
 

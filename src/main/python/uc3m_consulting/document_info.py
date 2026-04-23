@@ -1,3 +1,8 @@
+"""
+Extracted from Entreprise Manager to handle document validity checks
+and valid document counting.
+"""
+
 from datetime import datetime, timezone
 from freezegun import freeze_time
 from uc3m_consulting.project_document import ProjectDocument
@@ -12,7 +17,7 @@ class document_info:
         for document in documents_data:
             registration_timestamp = document["register_date"]
             formatted_doc_date = datetime.fromtimestamp(registration_timestamp).strftime("%d/%m/%Y")
-
+            #converting timestamp to desired dd/mm/yyyy format
             if formatted_doc_date == date_str:
                 document_datetime = datetime.fromtimestamp(registration_timestamp, tz=timezone.utc)
                 with freeze_time(document_datetime):

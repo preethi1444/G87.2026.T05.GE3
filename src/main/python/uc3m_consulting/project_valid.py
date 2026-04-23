@@ -1,3 +1,7 @@
+"""
+Extracted from Entreprise Manager to implement CIF, date,
+budget, and param checks
+"""
 import re
 from datetime import datetime, timezone
 from uc3m_consulting.enterprise_management_exception import EnterpriseManagementException
@@ -23,6 +27,7 @@ class project_valid:
         # dic -> control_letter_mapping
         control_letter_mapping = "JABCDEFGHI"
 
+        #cif types to see if control is numeric or alphabetic
         if cif_letter in ('A', 'B', 'E', 'H'):
             if str(control_result) != control_digit:
                 raise EnterpriseManagementException("Invalid CIF character control number")
@@ -42,6 +47,7 @@ class project_valid:
 
         for i, digit_str in enumerate(cif_numbers):
             digit = int(digit_str)
+            #have to double for even positions
             if i % 2 == 0:
                 digit_multiplied = digit * 2
                 even_sum += (digit_multiplied // 10) + (digit_multiplied % 10)
@@ -70,6 +76,7 @@ class project_valid:
     def validate_starting_date(date_string):
         parsed_date = project_valid.validate_date_format(date_string)
 
+        #project can't start in past
         if parsed_date < datetime.now(timezone.utc).date():
             raise EnterpriseManagementException("Project's date must be today or later.")
 
@@ -86,6 +93,7 @@ class project_valid:
         except ValueError as exc:
             raise EnterpriseManagementException("Invalid budget amount") from exc
 
+        #makes sure 2 decimal places max
         budget_string = str(budget_amount)
         if '.' in budget_string:
             decimal_places = len(budget_string.split('.')[1])
