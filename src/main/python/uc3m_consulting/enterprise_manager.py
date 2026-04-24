@@ -19,7 +19,11 @@ from uc3m_consulting.document_info import document_info
 
 
 class EnterpriseManager:
+    """
+    Includes singleton class
+    """
     _instance = None
+    _initialized = False
 
     def __new__(cls):
         """Implementation of the Singleton pattern (Step 3.1)"""
