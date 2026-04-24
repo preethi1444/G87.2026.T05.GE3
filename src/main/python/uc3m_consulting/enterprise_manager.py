@@ -19,15 +19,19 @@ from uc3m_consulting.document_info import document_info
 
 
 class EnterpriseManager:
-    """Class for providing the methods for managing the orders"""
-
-    __instance = None
+    _instance = None
 
     def __new__(cls):
         """Implementation of the Singleton pattern (Step 3.1)"""
-        if EnterpriseManager.__instance is None:
-            EnterpriseManager.__instance = super(EnterpriseManager, cls).__new__(cls)
-        return EnterpriseManager.__instance
+        if cls._instance is None:
+            cls._instance = super(EnterpriseManager, cls).__new__(cls)
+            cls._instance._initialized = False
+        return cls._instance
+
+    def __init__(self):
+        if self._initialized:
+            return
+        self._initialized = True
 
     #removed to increase pylint score
     # def __init__(self):
