@@ -98,7 +98,7 @@ class EnterpriseManager:
         Generates a JSON report counting valid documents for a specific date.
 
         Checks cryptographic hashes and timestamps to ensure historical data integrity.
-        Saves the output to 'resultado.json'.
+        Saves the output to 'result.json'.
 
         Args:
             date_str (str): date to query.
